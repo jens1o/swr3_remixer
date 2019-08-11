@@ -1,6 +1,8 @@
 extern crate dotenv;
 extern crate json;
 extern crate reqwest;
+#[macro_use]
+extern crate cached;
 
 mod swr3_api;
 mod youtube_api;

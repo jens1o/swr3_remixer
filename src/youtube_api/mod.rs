@@ -20,22 +20,25 @@ struct YoutubeVideoId {
     video_id: String,
 }
 
-pub fn get_video_search_result_url(query: String) -> Option<String> {
-    let client = reqwest::Client::new();
+cached! {
+    VID_MAPPING;
+    fn get_video_search_result_url(query: String) -> Option<String> = {
+        let client = reqwest::Client::new();
 
-    // TODO: Add caching logic
+        // TODO: Add caching logic
 
-    let response = client
-        .get(YOUTUBE_SEARCH_API_BASE_URL)
-        .query(&[("key", env::var("YT_API_KEY").expect("No YouTube API key given. Please ensure there is a .env file with the necessary key registered at Google"))])
-        .query(&[("q", query)])
-        .send();
+        let response = client
+            .get(YOUTUBE_SEARCH_API_BASE_URL)
+            .query(&[("key", env::var("YT_API_KEY").expect("No YouTube API key given. Please ensure there is a .env file with the necessary key registered at Google"))])
+            .query(&[("q", query)])
+            .send();
 
-    response
-        .and_then(|mut response| response.json::<YoutubeApiSearchResponse>())
-        .ok()
-        .map(|x| x.items[0].id.video_id.clone())
-        .map(get_video_url)
+        response
+            .and_then(|mut response| response.json::<YoutubeApiSearchResponse>())
+            .ok()
+            .map(|x| x.items[0].id.video_id.clone())
+            .map(get_video_url)
+    }
 }
 
 fn get_video_url(video_id: String) -> String {
