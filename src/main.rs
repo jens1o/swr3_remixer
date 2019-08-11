@@ -23,7 +23,7 @@ fn main() {
     loop {
         if let Some(song_data) = swr3_api::get_current_played_song() {
             if playing_song != Some(song_data.clone()) {
-                println!("Searching for remix of {} …", &song_data);
+                println!("Searching for a remix of {} …", &song_data);
                 if let Some(video_url) =
                     youtube_api::get_video_search_result_url(get_yt_search_query(song_data.clone()))
                 {
@@ -60,6 +60,11 @@ fn download_video(url: String) -> Option<String> {
         String::from_utf8(youtube_dl.stdout).expect("Invalid encoding in youtube_dl output!");
 
     let json = json::parse(&buffer).expect("youtube_dl returned no valid json!");
+
+    println!(
+        r#"Downloaded the song "{}", queuing up for playing …"#,
+        json["title"]
+    );
 
     Some(format!("downloads/{}.{}", json["id"], json["acodec"]))
 }
