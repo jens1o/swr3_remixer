@@ -1,0 +1,15 @@
+[package]
+name = "swr3-remixer"
+description = "Parses current song played of the radio broadcaster SWR3 and searches for an aquivalent remix on YouTube. Downloads it, if necessary."
+version = "0.1.0"
+authors = ["Jens Hausdorf <mail@jens-hausdorf.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = "^0.9"
+serde = "1"
+serde_derive = "1"
+json = "0.11.14"
+dotenv = "0.14.1"
