@@ -15,7 +15,7 @@ use std::time::Duration;
 fn main() {
     dotenv().ok();
 
-    let sleep_duration = Duration::from_secs(30);
+    let sleep_duration = Duration::from_secs(20);
     let mut playing_song: Option<swr3_api::Swr3Song> = None;
 
     // TODO: Refactor errors to be fatal (in certain circumstances)
@@ -32,6 +32,8 @@ fn main() {
                     );
                     playing_song = Some(song_data);
                 }
+            } else {
+                println!("Still playing the same song, skipping this iteration …");
             }
         }
 
@@ -70,7 +72,8 @@ fn download_video(url: String) -> Option<String> {
 }
 
 fn get_yt_search_query(song: swr3_api::Swr3Song) -> String {
-    format!("{} {} remix", song.artist, song.title)
+    // removing the semicolon SWR3 is using for separation of the artists increases the quality of the search results
+    format!("{} {} remix", song.artist.replace(';', ""), song.title)
 }
 
 fn enqueue_vlc_playlist(uri: String) {

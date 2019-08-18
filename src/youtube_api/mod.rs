@@ -33,11 +33,15 @@ cached! {
             .query(&[("q", query)])
             .send();
 
-        response
-            .and_then(|mut response| response.json::<YoutubeApiSearchResponse>())
-            .ok()
-            .map(|x| x.items[0].id.video_id.clone())
-            .map(get_video_url)
+        let result = response
+            .and_then(|mut response| response.json::<YoutubeApiSearchResponse>());
+
+        if let Err(err) = result {
+            eprintln!("Error while parsing response: {}", err);
+            return None;
+        }
+
+        return Some(get_video_url(result.unwrap().items[0].id.video_id.clone()));
     }
 }
 
