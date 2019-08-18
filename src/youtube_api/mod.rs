@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::env;
 
 const YOUTUBE_SEARCH_API_BASE_URL: &'static str =
-    "https://www.googleapis.com/youtube/v3/search?part=snippet";
+    "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1";
 
 #[derive(Debug, Deserialize)]
 struct YoutubeApiSearchResponse {

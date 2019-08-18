@@ -15,8 +15,9 @@ use std::time::Duration;
 fn main() {
     dotenv().ok();
 
-    let sleep_duration = Duration::from_secs(20);
     let mut playing_song: Option<swr3_api::Swr3Song> = None;
+    let mut same_song_counter: u8 = 0;
+    let mut sleep_duration = get_wait_duration(same_song_counter);
 
     // TODO: Refactor errors to be fatal (in certain circumstances)
 
@@ -31,14 +32,31 @@ fn main() {
                         download_video(video_url).expect("Cannot download video!"),
                     );
                     playing_song = Some(song_data);
+                    same_song_counter = 0;
+                    sleep_duration = get_wait_duration(same_song_counter);
                 }
             } else {
-                println!("Still playing the same song, skipping this iteration …");
+                same_song_counter = same_song_counter.wrapping_add(1);
+                sleep_duration = get_wait_duration(same_song_counter);
+                println!(
+                    "[{}] Still playing the same song, skipping this iteration. Polling again in {:?} …",
+                    same_song_counter, sleep_duration
+                );
             }
         }
 
         sleep(sleep_duration);
     }
+}
+
+/// Returns the duration the program should wait between two tries with the same data.
+/// Gets more aggressive the higher the given `try_count` is.
+fn get_wait_duration(try_count: u8) -> Duration {
+    Duration::from_secs(match try_count {
+        0..=1 => 60,
+        2..=4 => 30,
+        _ => 20,
+    })
 }
 
 fn download_video(url: String) -> Option<String> {
@@ -72,8 +90,13 @@ fn download_video(url: String) -> Option<String> {
 }
 
 fn get_yt_search_query(song: swr3_api::Swr3Song) -> String {
-    // removing the semicolon SWR3 is using for separation of the artists increases the quality of the search results
-    format!("{} {} remix", song.artist.replace(';', ""), song.title)
+    format!(
+        "{} {} remix",
+        song.artist
+            .replace(';', "") // removing the semicolon SWR3 is using for separation of the artists increases the quality of the search results
+            .replace("&#39;", "'"), // TODO: Decode html entities properly, rust support in terms with serde is pretty limited here
+        song.title
+    )
 }
 
 fn enqueue_vlc_playlist(uri: String) {
