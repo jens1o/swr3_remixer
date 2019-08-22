@@ -8,11 +8,11 @@ mod swr3_api;
 mod youtube_api;
 
 use dotenv::dotenv;
-use std::process::Command;
+use std::process::{exit, Command};
 use std::thread::sleep;
 use std::time::Duration;
 
-/// Maximum time to poll until we eventually give up because we don't get something new.
+/// Maximum time to poll until we eventually give up because we don't get a (new) song.
 /// Most likely some kind of refusal/server out of business.
 const MAX_WAIT_COUNT: u8 = 20;
 
@@ -70,6 +70,9 @@ fn main() {
 
         sleep(sleep_duration);
     }
+
+    // We only get here when an fatal error occured, so exit with non-zero error code.
+    exit(1);
 }
 
 /// Returns the duration the program should wait between two tries with the same data.
