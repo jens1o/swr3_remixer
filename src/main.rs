@@ -71,7 +71,17 @@ fn download_video(url: String) -> Option<String> {
         &url,
     ];
 
-    let youtube_dl = Command::new("youtube-dl")
+    let mut youtube_dl = Command::new(if cfg!(windows) {
+        "cmd.exe"
+    } else {
+        "youtube-dl"
+    });
+
+    if cfg!(windows) {
+        youtube_dl.args(&["/C", "youtube-dl.exe"]);
+    }
+
+    let youtube_dl = youtube_dl
         .args(&ytdl_args)
         .output()
         .expect("Cannot get output of finished child process!");
@@ -102,7 +112,11 @@ fn get_yt_search_query(song: swr3_api::Swr3Song) -> String {
 fn enqueue_vlc_playlist(uri: String) {
     println!("Playing {} with vlc!", &uri);
 
-    let mut command = Command::new("vlc");
+    let mut command = Command::new(if cfg!(windows) { "cmd.exe" } else { "vlc" });
+
+    if cfg!(windows) {
+        command.args(&["/C", "vlc.exe"]);
+    }
 
     command
         .args(&["--started-from-file", "--playlist-enqueue"])
