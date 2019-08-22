@@ -12,6 +12,8 @@ use std::process::Command;
 use std::thread::sleep;
 use std::time::Duration;
 
+const MAX_WAIT_COUNT: u8 = 20;
+
 fn main() {
     dotenv().ok();
 
@@ -36,7 +38,16 @@ fn main() {
                     sleep_duration = get_wait_duration(same_song_counter);
                 }
             } else {
-                same_song_counter = same_song_counter.wrapping_add(1);
+                same_song_counter += 1;
+
+                if same_song_counter > MAX_WAIT_COUNT {
+                    eprintln!(
+                        "Still no new song after waiting {} times, aborting!",
+                        MAX_WAIT_COUNT
+                    );
+                    break;
+                }
+
                 sleep_duration = get_wait_duration(same_song_counter);
                 println!(
                     "[{}] Still playing the same song, skipping this iteration. Polling again in {:?} …",
